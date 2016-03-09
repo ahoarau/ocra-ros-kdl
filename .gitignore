@@ -99,7 +99,6 @@ Temporary Items
 
 ### ROS ###
 build/
-bin/
 lib/
 msg_gen/
 srv_gen/
@@ -260,4 +259,3 @@ target/
 
 # dotenv
 .env
-
