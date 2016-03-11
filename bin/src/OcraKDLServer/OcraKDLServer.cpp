@@ -28,7 +28,6 @@ public:
     
     void getRobotState(VectorXd& q, VectorXd& qd, Eigen::Displacementd& H_root, Eigen::Twistd& T_root)
     {
-        std::cout << "Getting robot state" << std::endl;
         jnt_pos_in_fs = port_joint_position_in.readNewest(q);
         jnt_vel_in_fs = port_joint_velocity_in.readNewest(qd);
     }
