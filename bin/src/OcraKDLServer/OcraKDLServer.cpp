@@ -33,7 +33,7 @@ public:
         jnt_vel_in_fs = port_joint_velocity_in.readNewest(qd);
     }
     
-    std::shared_ptr< ocra::Model > loadRobotModel()
+    std::shared_ptr< ocra::Model > setRobotModel()
     {
         /*if(bool(getRobotModel()))
             return getRobotModel();

@@ -262,3 +262,8 @@ target/
 
 # dotenv
 .env
+ocra_debug_1.txt
+ocra_debug_2.txt
+ocra_debug_3.txt
+ocra_debug_4.txt
+ocra_debug_5.txt
