@@ -1,0 +1,39 @@
+<package>
+  <name>ocra-kdl</name>
+  <version>1.0.0</version>
+  <license>BSD</license>
+  <maintainer email="name@domain.com">Firstname Lastname</maintainer>
+  <description>
+    Package description.
+  </description>
+
+  <buildtool_depend>catkin</buildtool_depend>
+
+  <!-- Build deps are queried automatically with orocos_use_package() -->
+  <build_depend>rtt</build_depend>
+  <build_depend>ocl</build_depend>
+  <build_depend>rtt_ros</build_depend>
+  <build_depend>eigen_typekit</build_depend>
+  <build_depend>kdl_typekit</build_depend>
+  <build_depend>orocos_kdl</build_depend>
+  <build_depend>rtt_rosclock</build_depend>
+  <build_depend>rtt_ros_kdl_tools</build_depend>
+  <build_depend>rtt_rocomm</build_depend>
+  
+  <run_depend>rtt_rocomm</run_depend>
+  <run_depend>rtt</run_depend>
+  <run_depend>ocl</run_depend>
+  <run_depend>rtt_ros</run_depend>
+  <run_depend>eigen_typekit</run_depend>
+  <run_depend>kdl_typekit</run_depend>
+  <run_depend>orocos_kdl</run_depend>
+  <run_depend>rtt_rosclock</run_depend>
+  <run_depend>rtt_ros_kdl_tools</run_depend>
+  
+  <export>
+    <rtt_ros>
+        <plugin_depend>eigen_typekit</plugin_depend>
+        <plugin_depend>kdl_typekit</plugin_depend>
+    </rtt_ros>
+  </export>
+</package>

@@ -1,6 +1,8 @@
 cmake_minimum_required(VERSION 2.8.11)
 project(ocra-kdl CXX)
 
+set(CMAKE_BUILD_TYPE Release)
+
 set(CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake/)
 
 include(CheckCXXCompilerFlag)
@@ -39,12 +41,12 @@ target_link_libraries(ocra-kdl-model
     ${catkin_LIBRARIES}
 )
 
-add_executable(ocra-kdl-server bin/src/OcraKDLServer/OcraKDLServer.cpp)
+orocos_component(ocra-kdl-server bin/src/OcraKDLServer/OcraKDLServer.cpp)
+set_property(TARGET ocra-kdl-server PROPERTY COMPILE_DEFINITIONS RTT_COMPONENT)
 target_link_libraries(ocra-kdl-server
     ocra-kdl-model
     ${USE_OROCOS_LIBRARIES}
     ${OcraRecipes_LIBRARIES}
     ${orocos_kdl_LIBRARIES}
     ${catkin_LIBRARIES}
-    ${TinyXML_LIBRARIES}
 )
