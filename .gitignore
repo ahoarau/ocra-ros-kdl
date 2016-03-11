@@ -2,6 +2,9 @@
 # Created by https://www.gitignore.io/api/cmake,kdevelop4,qt,linux,osx,ros,cmake,c++,python
 
 ### CMake ###
+.tb_history
+orocos.log
+
 CMakeCache.txt
 CMakeFiles
 CMakeScripts
