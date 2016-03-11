@@ -18,21 +18,33 @@
 #include <ros/ros.h>
 
 //=================================  Class methods  =================================//
-OcraKDLModel::OcraKDLModel(const std::string& robot_name): 
-chain(new rtt_ros_kdl_tools::ChainUtils()),
+OcraKDLModel::OcraKDLModel(const std::string& robot_name,bool initialize):
 ocra::Model(robot_name, 7, false) //TODO : make a new ()
 {
+    if(initialize)
+        this->initialize();
+}
+bool OcraKDLModel::initialize()
+{
+    chain = std::make_shared<rtt_ros_kdl_tools::ChainUtils>(false);
 
-    if(!chain)
+    if(!chain->init())
     {
         std::cerr << "Error while creating the KDL chain" << std::endl;
-        return;
+        return false;
     }
-    
+
     this->nb_segments = chain->getNrOfSegments();
     this->nb_joints = chain->getNrOfJoints();
+    M_inv.resize(chain->getNrOfJoints(),chain->getNrOfJoints());
+    M_inv.setZero();
+    jl_low.resize(chain->getNrOfJoints());
+    jl_up.resize(chain->getNrOfJoints());
+    jl_up.setZero();
+    jl_low.setZero();
     this->actuated_dofs = Eigen::VectorXd::Ones(nb_joints);
     eigen_vector_zero = Eigen::VectorXd::Zero(nb_joints);
+    return true;
 }
 
 OcraKDLModel::~OcraKDLModel()
@@ -63,12 +75,14 @@ const Eigen::VectorXd& OcraKDLModel::getActuatedDofs() const
 
 const Eigen::VectorXd& OcraKDLModel::getJointLowerLimits() const
 {
-    return Eigen::Map<Eigen::VectorXd>(chain->getJointLowerLimits().data(),chain->getNrOfJoints());
+    jl_low = Eigen::Map<Eigen::VectorXd>(chain->getJointLowerLimits().data(),chain->getNrOfJoints());
+    return jl_low;
 }
 
 const Eigen::VectorXd& OcraKDLModel::getJointUpperLimits() const
 {
-    return Eigen::Map<Eigen::VectorXd>(chain->getJointUpperLimits().data(),chain->getNrOfJoints());
+    jl_up = Eigen::Map<Eigen::VectorXd>(chain->getJointUpperLimits().data(),chain->getNrOfJoints());
+    return jl_up;
 }
 
 const Eigen::VectorXd& OcraKDLModel::getJointPositions() const
@@ -78,7 +92,6 @@ const Eigen::VectorXd& OcraKDLModel::getJointPositions() const
 
 const Eigen::VectorXd& OcraKDLModel::getJointVelocities() const
 {
-    // set by setState or setJointVelocities
     return chain->getJointVelocities().data;
 }
 
@@ -111,7 +124,8 @@ const Eigen::MatrixXd& OcraKDLModel::getInertiaMatrix() const
 
 const Eigen::MatrixXd& OcraKDLModel::getInertiaMatrixInverse() const
 {
-    return chain->getInertiaMatrix().data.inverse();
+    M_inv = chain->getInertiaMatrix().data.inverse();
+    return M_inv;
 }
 
 const Eigen::MatrixXd& OcraKDLModel::getDampingMatrix() const
@@ -198,15 +212,18 @@ const Eigen::Rotation3d& OcraKDLModel::getSegmentInertiaAxes(int index) const
 
 const Eigen::Matrix<double,6,Eigen::Dynamic>& OcraKDLModel::getSegmentJacobian(int index) const
 {
-
+    return chain->getSegmentJacobian(index).data;
 }
 
 const Eigen::Matrix<double,6,Eigen::Dynamic>& OcraKDLModel::getSegmentJdot(int index) const
 {
+    //return chain->getJdotQdot(index).;
 }
 
 const Eigen::Matrix<double,6,Eigen::Dynamic>& OcraKDLModel::getJointJacobian(int index) const
 {
+    std::cout << "Jacobian test : " << chain->getSegmentJacobian(index).data<< std::endl;
+    return chain->getSegmentJacobian(index).data;
 }
 
 const Eigen::Twistd& OcraKDLModel::getSegmentJdotQdot(int index) const

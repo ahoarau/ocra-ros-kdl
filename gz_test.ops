@@ -1,0 +1,24 @@
+#!/usr/bin/env deployer
+require("print")
+require("os")
+import("rtt_rospack")
+runScript(ros.find("rtt_gazebo_embedded")+"/gz_test.ops")
+
+
+
+print.ln("Importing ocra")
+import("ocra-kdl")
+print.ln("Loading ocra")
+loadComponent("ocra","OcraRTTServer")
+setActivity("ocra",0.001,12,ORO_SCHED_OTHER)
+
+connectPeers("lwr_sim","ocra")
+connect("lwr_sim.JointTorqueCommand","ocra.JointTorqueCommand",ConnPolicy())
+connect("lwr_sim.JointPosition","ocra.JointPosition",ConnPolicy())
+connect("lwr_sim.JointVelocity","ocra.JointVelocity",ConnPolicy())
+
+print.ln("Configuring ocra")
+ocra.configure()
+
+print.ln("Starting ocra")
+ocra.start()

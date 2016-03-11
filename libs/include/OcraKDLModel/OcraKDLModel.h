@@ -13,7 +13,7 @@ public:
 
 
 //===========================Constructor/Destructor===========================//
-    OcraKDLModel(const std::string& robotName = "arm");
+    OcraKDLModel(const std::string& robotName = "arm",bool initialize = false);
     virtual ~OcraKDLModel();
 
 //=============================General functions==============================//
@@ -36,7 +36,7 @@ public:
      const Eigen::VectorXd&       getNonLinearTerms        () const;
      const Eigen::VectorXd&       getLinearTerms           () const;
      const Eigen::VectorXd&       getGravityTerms          () const;
-     const Eigen::VectorXd&      getJointTorques()            const;
+     const Eigen::VectorXd&       getJointTorques()            const;
 //===============================CoM functions================================//
      double                                         getMass            () const;
      const Eigen::Vector3d&                         getCoMPosition     () const;
@@ -60,8 +60,8 @@ public:
      const Eigen::Matrix<double,6,Eigen::Dynamic>&  getJointJacobian            (int index) const;
      const Eigen::Twistd&                           getSegmentJdotQdot          (int index) const;
      void setState(const Eigen::VectorXd& q,const Eigen::VectorXd& qdot);
-    void printAllData();
-
+     void printAllData();
+     bool initialize();
 
 
 protected:
@@ -81,12 +81,15 @@ protected:
      const std::string   doDofName               (const std::string& name) const;
 
 private:
-    boost::scoped_ptr<rtt_ros_kdl_tools::ChainUtils> chain;
+    std::shared_ptr<rtt_ros_kdl_tools::ChainUtils> chain;
     Eigen::VectorXd actuated_dofs;
     unsigned int nb_segments,nb_joints;
     Eigen::Displacementd eigen_displacement_zero;
     Eigen::Twistd eigen_twist_zero;
     Eigen::VectorXd eigen_vector_zero;
+    mutable Eigen::VectorXd jl_up,jl_low;
+    mutable Eigen::MatrixXd M_inv;
+    mutable Eigen::MatrixXd joint_jacobian;
 
 };
 
