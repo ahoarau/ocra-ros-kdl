@@ -67,7 +67,7 @@ public:
 protected:
 
 //===========================Update state functions===========================//
-     void                doSetState();
+     void                doSetState(const Eigen::VectorXd& q, const Eigen::VectorXd& q_dot);
      void                doSetJointPositions     (const Eigen::VectorXd& q);
      void                doSetJointVelocities    (const Eigen::VectorXd& dq);
      void                doSetFreeFlyerPosition  (const Eigen::Displacementd& Hroot);

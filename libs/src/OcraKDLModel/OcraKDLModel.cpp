@@ -55,7 +55,7 @@ const Eigen::VectorXd& OcraKDLModel::getJointTorques() const
 {
 }
 
-void OcraKDLModel::doSetState()
+void OcraKDLModel::doSetState(const Eigen::VectorXd& q, const Eigen::VectorXd& q_dot)
 {
     chain->updateModel();
 }
