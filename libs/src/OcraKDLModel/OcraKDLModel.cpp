@@ -16,10 +16,10 @@
 #include <rtt_ros_kdl_tools/chain_utils.hpp>
 
 #include <ros/ros.h>
-
+using namespace rtt_ros_kdl_tools;
 //=================================  Class methods  =================================//
 OcraKDLModel::OcraKDLModel(const std::string& robot_name,bool initialize):
-ocra::Model(robot_name, 7, false) //TODO : make a new ()
+ocra::Model(robot_name, getNumberOfJointsFromROSParamURDF(), false) //TODO : make a new ()
 {
     if(initialize)
         this->initialize();
