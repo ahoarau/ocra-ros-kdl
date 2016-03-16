@@ -219,7 +219,6 @@ const Eigen::Matrix<double,6,Eigen::Dynamic>& OcraKDLModel::getSegmentJdot(int i
 
 const Eigen::Matrix<double,6,Eigen::Dynamic>& OcraKDLModel::getJointJacobian(int index) const
 {
-    std::cout << "Jacobian test : " << chain->getSegmentJacobian(index).data<< std::endl;
     return chain->getSegmentJacobian(index).data;
 }
 
