@@ -18,6 +18,7 @@ public:
     ocra_recipes::ControllerServer(ocra_recipes::WOCRA_CONTROLLER,false),
     RTT::TaskContext(name)
     {
+        this->addAttribute("solver_elapsed",solver_elapsed);
         // Inputs
         this->ports()->addPort("JointPosition", port_joint_position_in).doc("");
         this->ports()->addPort("JointVelocity", port_joint_velocity_in).doc("");
@@ -74,8 +75,8 @@ public:
         getController()->addTask(task);
 
 
-        task->setStiffness(5.0);
-        task->setDamping(2.*sqrt(5.0));
+        task->setStiffness(150.0);
+        task->setDamping(2.*sqrt(150.0));
         task->setWeight(w_full);
 
         task->activateAsObjective();
@@ -86,9 +87,14 @@ public:
     }
     void updateHook()
     {
-        port_joint_torque_cmd_out.write(this->computeTorques());
+        RTT::os::TimeService::ticks  ticks_start = RTT::os::TimeService::Instance()->getTicks();
+        const Eigen::VectorXd& tau = this->computeTorques();
+        solver_elapsed = RTT::os::TimeService::Instance()->getSeconds(ticks_start);
+        const Eigen::VectorXd& G = this->getRobotModel()->getGravityTerms();
+        port_joint_torque_cmd_out.write(tau - G);
     }
 protected:
+    double solver_elapsed;
     RTT::FlowStatus jnt_pos_in_fs,
                     jnt_vel_in_fs;
 
