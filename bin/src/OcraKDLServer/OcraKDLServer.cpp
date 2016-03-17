@@ -85,6 +85,10 @@ public:
         jnt_vel_in.resize(7);
         return true;
     }
+    bool startHook()
+    {
+        return true;
+    }
     void updateHook()
     {
         RTT::os::TimeService::ticks  ticks_start = RTT::os::TimeService::Instance()->getTicks();
