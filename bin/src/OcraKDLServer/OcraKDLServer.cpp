@@ -10,15 +10,18 @@
 #include <chrono>
 #include <memory>
 #include <ros/ros.h>
+#include <yarp/os/Network.h>
 
 class OcraRTTServer : public ocra_recipes::ControllerServer , public RTT::TaskContext
 {
 public:
     OcraRTTServer(const std::string& name):
-    ocra_recipes::ControllerServer(ocra_recipes::WOCRA_CONTROLLER,false),
+    ocra_recipes::ControllerServer(ocra_recipes::WOCRA_CONTROLLER,ocra_recipes::QPOASES,true),
     RTT::TaskContext(name)
     {
         this->addAttribute("solver_elapsed",solver_elapsed);
+        this->addAttribute("task_xml_path",task_xml_path);
+        this->addAttribute("solver_type",solver_type);
         // Inputs
         this->ports()->addPort("JointPosition", port_joint_position_in).doc("");
         this->ports()->addPort("JointVelocity", port_joint_velocity_in).doc("");
@@ -35,17 +38,6 @@ public:
     
     std::shared_ptr< ocra::Model > loadRobotModel()
     {
-        /*if(bool(getRobotModel()))
-            return getRobotModel();
-        RTT::log(RTT::Info) << "Creating KDL/ROS Model" << RTT::endlog();
-        auto ocra_kdl_model = std::make_shared<OcraKDLModel>(); 
-        RTT::log(RTT::Info) << "Configuring KDL/ROS Model" << RTT::endlog();
-        if(!ocra_kdl_model->initialize())
-        {
-            RTT::log(RTT::Fatal) << "Error while configuring KDL/ROS Model" << RTT::endlog();
-            return nullptr;
-        }
-        return ocra_kdl_model;*/
         return std::make_shared<OcraKDLModel>("arm",true);
     }
     
@@ -56,34 +48,8 @@ public:
             RTT::log(RTT::Fatal) << "Error while initializing Controller Server" << RTT::endlog();
             return false;
         }
-        Eigen::VectorXd w_full      = Eigen::VectorXd::Ones(7);
-        
-        std::string name("fullPostureTask");
-    
-        featState = new ocra::FullModelState(name + ".FullModelState", *(getRobotModel()), ocra::FullState::INTERNAL);
-        featDesState = new  ocra::FullTargetState(name + ".FullTargetState", *(getRobotModel()), ocra::FullState::INTERNAL);
-
-        feat = new ocra::FullStateFeature(name + ".FullStateFeature", *featState);
-        featDes = new ocra::FullStateFeature(name + ".FullStateFeature_Des", *featDesState);
-        
-        
-        task = (getController()->createTask(name, *feat, *featDes));
-        
-        if(!task) return false;
-        
-        task->setTaskType(ocra::Task::ACCELERATIONTASK);
-        getController()->addTask(task);
-
-
-        task->setStiffness(150.0);
-        task->setDamping(2.*sqrt(150.0));
-        task->setWeight(w_full);
-
-        task->activateAsObjective();
-        
-        jnt_pos_in.resize(7);
-        jnt_vel_in.resize(7);
-        return true;
+        std::cout  << "Loading tasks from ["<<task_xml_path<<"]" << std::endl;
+        return this->addTaskManagersFromXmlFile(task_xml_path);
     }
     bool startHook()
     {
@@ -115,6 +81,10 @@ protected:
         
     ocra::FullStateFeature* feat;
     ocra::FullStateFeature* featDes;
+    std::string task_xml_path;
+    ocra_recipes::SOLVER_TYPE solver_type;
+    yarp::os::Network yarp;
+    
     
 };
 

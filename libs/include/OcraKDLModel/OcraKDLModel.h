@@ -6,6 +6,33 @@
 #include <rtt_ros_kdl_tools/chain_utils.hpp>
 #include <boost/smart_ptr.hpp>
 
+namespace kdl_tools{
+    inline void KDLFrameToEigenDispd(const KDL::Frame &frame, Eigen::Displacementd &disp)
+    {
+                double qx, qy, qz, qw;
+                frame.M.GetQuaternion(qx, qy, qz, qw);
+                disp  = Eigen::Displacementd(frame.p[0], frame.p[1], frame.p[2], qw, qx, qy, qz);
+    }
+    
+    inline Eigen::Twistd& KDLTwistToOcraTwistVector(const KDL::Twist& t_kdl, Eigen::Twistd& t_ocra)
+    {
+        Eigen::Vector3d ocrat(t_kdl.vel.data);
+        Eigen::Vector3d ocrar(t_kdl.rot.data);
+
+        t_ocra << ocrar,
+                  ocrat;
+        return t_ocra;
+    }
+    
+    inline Eigen::Matrix<double,6,Eigen::Dynamic>& KDLJacobianToOcraJacobian(const KDL::Jacobian& kdl_jac, Eigen::Matrix<double,6,Eigen::Dynamic>& jac_ocra)
+    {
+        jac_ocra.topLeftCorner(3,kdl_jac.rows()) = kdl_jac.data.bottomLeftCorner(3,kdl_jac.rows());
+        jac_ocra.bottomLeftCorner(3,kdl_jac.rows()) = kdl_jac.data.topLeftCorner(3,kdl_jac.rows());
+        return jac_ocra;
+    }
+}
+
+
 class OcraKDLModel: public ocra::Model
 {
 public:
@@ -14,7 +41,7 @@ public:
 
 //===========================Constructor/Destructor===========================//
     OcraKDLModel(const std::string& robotName = "arm",bool initialize = false);
-    virtual ~OcraKDLModel();
+    virtual ~OcraKDLModel(){};
 
 //=============================General functions==============================//
      int                          nbSegments               () const;
@@ -62,6 +89,7 @@ public:
      void setState(const Eigen::VectorXd& q,const Eigen::VectorXd& qdot);
      void printAllData();
      bool initialize();
+     void updateJointTorques(const Eigen::VectorXd& joint_torques){ this->joint_torques_ = joint_torques_; }
 
 
 protected:
@@ -83,14 +111,21 @@ protected:
 
 private:
     std::shared_ptr<rtt_ros_kdl_tools::ChainUtils> chain;
-    Eigen::VectorXd actuated_dofs;
+    mutable Eigen::VectorXd actuated_dofs,joint_torques_;
     unsigned int nb_segments,nb_joints;
-    Eigen::Displacementd eigen_displacement_zero;
-    Eigen::Twistd eigen_twist_zero;
-    Eigen::VectorXd eigen_vector_zero;
+    mutable Eigen::Displacementd eigen_displacement_zero;
+    mutable Eigen::Twistd eigen_twist_zero,twist_ocra;
+    mutable Eigen::VectorXd eigen_vector_zero;
     mutable Eigen::VectorXd jl_up,jl_low;
-    mutable Eigen::MatrixXd M_inv;
+    mutable Eigen::MatrixXd M_inv,eigen_matrix_zero;
     mutable Eigen::MatrixXd joint_jacobian;
+    mutable Eigen::Matrix<double,6,Eigen::Dynamic> jac_tmp;
+    mutable KDL::Frame seg_pose;
+    mutable Eigen::Displacementd seg_pose_eigen;
+    mutable Eigen::Matrix<double,6,6> eigen_matrix_6_6_zero;
+    mutable Eigen::Rotation3d eigen_rotation_zero;
+    mutable Eigen::Matrix<double,3,Eigen::Dynamic> eigen_3_dyn_zero;
+    mutable Eigen::Vector3d eigen_vector_3_zero,eigen_cog;
 
 };
 

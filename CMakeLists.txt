@@ -33,7 +33,7 @@ include_directories(
     ${catkin_INCLUDE_DIRS}
 )
 
-add_library(ocra-kdl-model libs/src/OcraKDLModel/OcraKDLModel.cpp)
+orocos_library(ocra-kdl-model libs/src/OcraKDLModel/OcraKDLModel.cpp)
 target_link_libraries(ocra-kdl-model
     ${USE_OROCOS_LIBRARIES}
     ${OcraRecipes_LIBRARIES}
@@ -50,3 +50,8 @@ target_link_libraries(ocra-kdl-server
     ${orocos_kdl_LIBRARIES}
     ${catkin_LIBRARIES}
 )
+
+orocos_generate_package(INCLUDE_DIRS libs/include)
+
+orocos_install_headers(libs/include/OcraKDLModel/OcraKDLModel.h)
+

@@ -17,7 +17,13 @@ connect("lwr_sim.JointTorqueCommand","ocra.JointTorqueCommand",ConnPolicy())
 connect("lwr_sim.JointPosition","ocra.JointPosition",ConnPolicy())
 connect("lwr_sim.JointVelocity","ocra.JointVelocity",ConnPolicy())
 
-print.ln("Configuring ocra")
+var string task_path = ros.find("ocra-kdl")+"/lwr_tasks.xml"
+
+print.ln("Configuring ocra with xml file "+task_path)
+
+ocra.task_xml_path = task_path
+
+
 ocra.configure()
 
 print.ln("Starting ocra")

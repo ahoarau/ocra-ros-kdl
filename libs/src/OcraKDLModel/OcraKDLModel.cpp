@@ -42,17 +42,19 @@ bool OcraKDLModel::initialize()
     jl_up.resize(chain->getNrOfJoints());
     jl_up.setZero();
     jl_low.setZero();
+    eigen_vector_3_zero.setZero();
+    eigen_matrix_zero.setZero(chain->getNrOfJoints(),chain->getNrOfJoints());
+    eigen_3_dyn_zero.setZero(3,chain->getNrOfJoints());
+    joint_torques_.setZero(chain->getNrOfJoints());
+    jac_tmp.setZero(6,chain->getNrOfJoints());
     this->actuated_dofs = Eigen::VectorXd::Ones(nb_joints);
     eigen_vector_zero = Eigen::VectorXd::Zero(nb_joints);
     return true;
 }
 
-OcraKDLModel::~OcraKDLModel()
-{
-
-}
 const Eigen::VectorXd& OcraKDLModel::getJointTorques() const
 {
+    return joint_torques_;
 }
 
 void OcraKDLModel::doSetState(const Eigen::VectorXd& q, const Eigen::VectorXd& q_dot)
@@ -92,7 +94,6 @@ const Eigen::VectorXd& OcraKDLModel::getJointVelocities() const
     return chain->getJointVelocities().data;
 }
 
-
 const std::string& OcraKDLModel::getJointName(int index) const
 {
     return chain->getSegment(index).getJoint().getName();
@@ -127,7 +128,7 @@ const Eigen::MatrixXd& OcraKDLModel::getInertiaMatrixInverse() const
 
 const Eigen::MatrixXd& OcraKDLModel::getDampingMatrix() const
 {
-    
+    return eigen_matrix_zero;
 }
 
 const Eigen::VectorXd& OcraKDLModel::getNonLinearTerms() const
@@ -147,83 +148,106 @@ const Eigen::VectorXd& OcraKDLModel::getGravityTerms() const
 
 double OcraKDLModel::getMass() const
 {
-
+    double mass = 0.0;
+    for(int i=0;i<chain->getNrOfSegments();i++)
+        mass += chain->getSegment(i).getInertia().getMass();
+    return mass;
 }
 
 const Eigen::Vector3d& OcraKDLModel::getCoMPosition() const
 {
+    return eigen_vector_3_zero;
 }
 
 const Eigen::Vector3d& OcraKDLModel::getCoMVelocity() const
 {
+    return eigen_vector_3_zero;
 }
 
 const Eigen::Vector3d& OcraKDLModel::getCoMAngularVelocity() const
 {
+    return eigen_vector_3_zero;
 }
 
 const Eigen::Vector3d& OcraKDLModel::getCoMJdotQdot() const
 {
+    return eigen_vector_3_zero;
 }
 
 const Eigen::Matrix<double,3,Eigen::Dynamic>& OcraKDLModel::getCoMJacobian() const
 {
-
+    return eigen_3_dyn_zero;
 }
 
 const Eigen::Matrix<double,3,Eigen::Dynamic>& OcraKDLModel::getCoMAngularJacobian() const
 {
+    return eigen_3_dyn_zero;
 }
 
 const Eigen::Matrix<double,3,Eigen::Dynamic>& OcraKDLModel::getCoMJacobianDot() const
 {
+    return eigen_3_dyn_zero;
 }
 
 const Eigen::Displacementd& OcraKDLModel::getSegmentPosition(int index) const
 {
+    kdl_tools::KDLFrameToEigenDispd(this->chain->getSegmentPosition(index),seg_pose_eigen);
+    return seg_pose_eigen;
 }
 
 const Eigen::Twistd& OcraKDLModel::getSegmentVelocity(int index) const
 {
+    kdl_tools::KDLTwistToOcraTwistVector(this->chain->getSegmentVelocity(index),twist_ocra);
+    return twist_ocra;
 }
 
 double OcraKDLModel::getSegmentMass(int index) const
 {
+    return chain->getSegment(index).getInertia().getMass();
 }
 
 const Eigen::Vector3d& OcraKDLModel::getSegmentCoM(int index) const
 {
+    KDL::Vector cog = chain->getSegment(index).getInertia().getCOG();
+    eigen_cog << cog.x(),cog.y(),cog.z();
+    return eigen_cog;
 }
 
 const Eigen::Matrix<double,6,6>& OcraKDLModel::getSegmentMassMatrix(int index) const
 {
+    return eigen_matrix_6_6_zero;
 }
 
 const Eigen::Vector3d& OcraKDLModel::getSegmentMomentsOfInertia(int index) const
 {
+    return eigen_vector_3_zero;
 }
 
 const Eigen::Rotation3d& OcraKDLModel::getSegmentInertiaAxes(int index) const
 {
+    return eigen_rotation_zero;
 }
 
 const Eigen::Matrix<double,6,Eigen::Dynamic>& OcraKDLModel::getSegmentJacobian(int index) const
 {
-    return chain->getSegmentJacobian(index).data;
+    return kdl_tools::KDLJacobianToOcraJacobian(chain->getSegmentJacobian(index),jac_tmp);
 }
 
 const Eigen::Matrix<double,6,Eigen::Dynamic>& OcraKDLModel::getSegmentJdot(int index) const
 {
-    //return chain->getJdotQdot(index).;
+    return kdl_tools::KDLJacobianToOcraJacobian(chain->getSegmentJdot(index),jac_tmp);;
 }
 
 const Eigen::Matrix<double,6,Eigen::Dynamic>& OcraKDLModel::getJointJacobian(int index) const
 {
-    return chain->getSegmentJacobian(index).data;
+    return kdl_tools::KDLJacobianToOcraJacobian(chain->getSegmentJacobian(index),jac_tmp);;
 }
 
 const Eigen::Twistd& OcraKDLModel::getSegmentJdotQdot(int index) const
 {
+    const KDL::Twist& jdotqdot = this->chain->getSegmentJdotQdot(index);
+    kdl_tools::KDLTwistToOcraTwistVector(jdotqdot,twist_ocra);
+    return twist_ocra;
 }
 
 void OcraKDLModel::doSetJointPositions(const Eigen::VectorXd& q)
@@ -246,23 +270,23 @@ void OcraKDLModel::doSetFreeFlyerVelocity(const Eigen::Twistd& Troot)
 
 int OcraKDLModel::doGetSegmentIndex(const std::string& name) const
 {
-
+    return this->chain->getSegmentIndex(name);
 }
 
 int OcraKDLModel::doGetDofIndex(const std::string &name) const
 {
-
+    return this->chain->getSegmentIndex(name);
 }
 
 const std::string& OcraKDLModel::doGetDofName(int index) const
 {
-
+    return chain->getSegmentName(index);
 }
 
 
 const std::string& OcraKDLModel::doGetSegmentName(int index) const
 {
-
+    return this->chain->getSegment(index).getName();
 }
 
 const std::string OcraKDLModel::doSegmentName(const std::string& name) const
