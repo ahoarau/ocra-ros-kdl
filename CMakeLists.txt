@@ -26,7 +26,7 @@ orocos_use_package(rtt_rosclock)
 orocos_use_package(rtt_ros_kdl_tools)
 
 include_directories(
-    libs/include
+    include
     ${USE_OROCOS_INCLUDE_DIRS}
     ${OcraRecipes_INCLUDE_DIRS}
     ${orocos_kdl_INCLUDE_DIRS}
