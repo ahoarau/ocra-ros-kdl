@@ -33,7 +33,7 @@ include_directories(
     ${catkin_INCLUDE_DIRS}
 )
 
-orocos_library(ocra-kdl-model libs/src/OcraKDLModel/OcraKDLModel.cpp)
+orocos_library(ocra-kdl-model src/OcraKDLModel/OcraKDLModel.cpp)
 target_link_libraries(ocra-kdl-model
     ${USE_OROCOS_LIBRARIES}
     ${OcraRecipes_LIBRARIES}
@@ -41,7 +41,7 @@ target_link_libraries(ocra-kdl-model
     ${catkin_LIBRARIES}
 )
 
-orocos_component(ocra-kdl-server bin/src/OcraKDLServer/OcraKDLServer.cpp)
+orocos_component(ocra-kdl-server src/OcraKDLServer/OcraKDLServer.cpp)
 set_property(TARGET ocra-kdl-server PROPERTY COMPILE_DEFINITIONS RTT_COMPONENT)
 target_link_libraries(ocra-kdl-server
     ocra-kdl-model
@@ -51,7 +51,6 @@ target_link_libraries(ocra-kdl-server
     ${catkin_LIBRARIES}
 )
 
-orocos_generate_package(INCLUDE_DIRS libs/include)
+orocos_generate_package(INCLUDE_DIRS include)
 
-orocos_install_headers(libs/include/OcraKDLModel/OcraKDLModel.h)
-
+orocos_install_headers(include/OcraKDLModel/OcraKDLModel.h)
