@@ -1,0 +1,30 @@
+#!/usr/bin/env deployer
+require("print")
+require("os")
+import("rtt_rospack")
+runScript(ros.find("lwr_launch")+"/scripts/lwr_loader.ops")
+
+loadRobot(true)
+loadStatePublisher(true)
+
+print.ln("Importing ocra")
+import("ocra-kdl")
+print.ln("Loading ocra")
+loadComponent("ocra","OcraRTTServer")
+setActivity("ocra",0.001,12,ORO_SCHED_OTHER)
+
+connectPeers(getRobotName(),"ocra")
+connect(getRobotName()+".JointTorqueCommand","ocra.JointTorqueCommand",ConnPolicy())
+connect(getRobotName()+".JointPosition","ocra.JointPosition",ConnPolicy())
+connect(getRobotName()+".JointVelocity","ocra.JointVelocity",ConnPolicy())
+
+var string task_path = ros.find("ocra-kdl")+"/lwr_tasks.xml"
+
+print.ln("Configuring ocra with xml file "+task_path)
+
+ocra.task_xml_path = task_path
+
+ocra.configure()
+
+print.ln("Starting ocra")
+ocra.start()

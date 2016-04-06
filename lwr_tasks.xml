@@ -2,7 +2,6 @@
 
 <task name="fullPosture" type="FullPostureTaskManager">
    <params kp="100.0" weight="0.001" usesYarp="true"/>
-   <desired> 0.0 0.1 0.0 0.0 0.0 -0.0 0.0</desired>
 </task>
 
 <!--
@@ -12,10 +11,7 @@
 </task>
 -->
 
-<task name="cartEndEffector" type="SegPoseTaskManager">
+<task name="cartEndEffector" type="SegCartesianTaskManager">
    <segment>link_7</segment>
    <params kp="300.0" weight="1.0" axes="XYZ" usesYarp="true"/>
-   <!--desired x="0.6" y="0.1" z="0.6" /-->
 </task>
-
-
