@@ -33,6 +33,7 @@ bool OcraKDLModel::initialize()
         std::cerr << "Error while creating the KDL chain" << std::endl;
         return false;
     }
+    chain->printChain();
 
     this->nb_segments = chain->getNrOfSegments();
     this->nb_joints = chain->getNrOfJoints();

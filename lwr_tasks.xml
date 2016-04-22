@@ -1,8 +1,6 @@
 <?xml version="1.0" ?>
 
-<task name="fullPosture" type="FullPostureTaskManager">
-   <params kp="100.0" weight="0.001" usesYarp="true"/>
-</task>
+
 
 <!--
 <task name="cartEndEffector" type="SegPoseTaskManager">
@@ -11,7 +9,20 @@
 </task>
 -->
 
+<task name="cartCoude" type="SegCartesianTaskManager">
+   <segment>link_4</segment>
+   <params kp="300.0" weight="0.1" axes="XYZ" usesYarp="true" hierarchyLevel="0"/>
+   <desired x="-0.15" y="-0.33" z="0.45"/>
+</task>
+
+
 <task name="cartEndEffector" type="SegCartesianTaskManager">
    <segment>link_7</segment>
-   <params kp="300.0" weight="1.0" axes="XYZ" usesYarp="true"/>
+   <params kp="300.0" weight="1.0" axes="XYZ" usesYarp="true" hierarchyLevel="1"/>
+   <desired x="0.2" y="0.45" z="0.5"/>
 </task>
+
+<!--<task name="fullPostureLow" type="FullPostureTaskManager">
+   <params kp="100.0" weight="0.01" usesYarp="true" hierarchyLevel="2"/>
+</task>-->
+

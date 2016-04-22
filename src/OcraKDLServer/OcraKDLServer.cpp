@@ -16,7 +16,7 @@ class OcraRTTServer : public ocra_recipes::ControllerServer , public RTT::TaskCo
 {
 public:
     OcraRTTServer(const std::string& name):
-    ocra_recipes::ControllerServer(ocra_recipes::WOCRA_CONTROLLER,ocra_recipes::QPOASES,true),
+    ocra_recipes::ControllerServer(ocra_recipes::HOCRA_CONTROLLER,ocra_recipes::QPOASES,true),
     RTT::TaskContext(name)
     {
         this->addAttribute("solver_elapsed",solver_elapsed);
