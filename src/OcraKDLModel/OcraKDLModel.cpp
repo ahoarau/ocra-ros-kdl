@@ -26,7 +26,7 @@ ocra::Model(robot_name, getNumberOfJointsFromROSParamURDF(), false) //TODO : mak
 }
 bool OcraKDLModel::initialize()
 {
-    chain = std::make_shared<rtt_ros_kdl_tools::ChainUtils>(false);
+    chain = std::make_shared<rtt_ros_kdl_tools::ChainUtils>();
 
     if(!chain->init())
     {
